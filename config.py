@@ -21,6 +21,11 @@ GPU_SPECS = {
         "peak_flops_fp16": 312e12,   # 312 TFLOPS
         "peak_bw_bytes": 2039e9,     # 2039 GB/s
     },
+    "A800_SXM": {
+        "name": "NVIDIA A800 SXM 80GB",
+        "peak_flops_fp16": 312e12,   # 312 TFLOPS (same as A100)
+        "peak_bw_bytes": 2039e9,     # 2039 GB/s HBM2e (same as A100)
+    },
     "RTX_4090": {
         "name": "NVIDIA RTX 4090",
         "peak_flops_fp16": 165.2e12, # 165.2 TFLOPS
@@ -38,7 +43,7 @@ GPU_SPECS = {
     },
 }
 
-ACTIVE_GPU = "A100_SXM"  # Change to match your hardware
+ACTIVE_GPU = "A800_SXM"  # Change to match your hardware
 
 # ── Output ───────────────────────────────────────────────────────────────────
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
