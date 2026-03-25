@@ -5,12 +5,12 @@ import os
 # ── Model ────────────────────────────────────────────────────────────────────
 MODEL_NAME = "facebook/opt-125m"
 DTYPE = "float16"
-ENFORCE_EAGER = True          # Must be True so torch.profiler sees individual kernels
+ENFORCE_EAGER = True          # Disable CUDA graphs for accurate timing
 GPU_MEMORY_UTILIZATION = 0.85 # Leave headroom for profiler overhead
 
 # ── Profiling parameters ─────────────────────────────────────────────────────
-PREFILL_PROMPT_LENGTHS = [128, 256, 512, 1024]
-DECODE_LENGTHS = [64, 128, 256]
+PREFILL_PROMPT_LENGTHS = [32, 64, 128, 256, 512, 1024, 2048, 4096]
+DECODE_LENGTHS = [32, 64, 128, 256, 512, 1024]
 DECODE_SHORT_PROMPT_LEN = 16  # Short prompt used during decode profiling
 WARMUP_ITERATIONS = 3
 

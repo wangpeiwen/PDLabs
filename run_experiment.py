@@ -9,8 +9,7 @@ import pandas as pd
 import config
 import profiler
 import analyzer
-import visualize_timeline_roofline as viz_tl
-import visualize_comparison as viz_cmp
+import visualize_timeline_roofline as viz_roofline
 
 
 def parse_args():
@@ -65,9 +64,8 @@ def main():
     summary_df = pd.DataFrame(summaries)
     summary_df.to_csv(f"{config.OUTPUT_DIR}/phase_summaries.csv", index=False)
 
-    # Generate figures
-    viz_tl.create_figure(summaries)
-    viz_cmp.create_figure(summaries)
+    # Generate Roofline figure
+    viz_roofline.create_figure(summaries)
 
     # Print summary
     print("\n" + "=" * 70)
