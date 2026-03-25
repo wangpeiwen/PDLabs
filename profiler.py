@@ -51,6 +51,30 @@ def _populate_model_arch():
     print(f"  Model arch: {n_layers}L, h={h}, heads={n_heads}, "
           f"head_dim={h // n_heads}, ffn={inter}, vocab={vocab}")
 
+    # Detect max context length
+    max_len = None
+    for attr in ("max_position_embeddings", "max_sequence_length",
+                 "n_positions", "seq_length"):
+        val = getattr(mc, attr, None)
+        if val is not None and val > 0:
+            max_len = val
+            break
+    if max_len is None:
+        max_len = 2048
+    config.MAX_MODEL_LEN = max_len
+    print(f"  Max context length: {max_len}")
+
+    # Filter out configs that exceed context length
+    config.PREFILL_PROMPT_LENGTHS = [
+        p for p in config.PREFILL_PROMPT_LENGTHS if p + 1 <= max_len
+    ]
+    config.DECODE_LENGTHS = [
+        d for d in config.DECODE_LENGTHS
+        if config.DECODE_SHORT_PROMPT_LEN + d <= max_len
+    ]
+    print(f"  Prefill lengths: {config.PREFILL_PROMPT_LENGTHS}")
+    print(f"  Decode lengths:  {config.DECODE_LENGTHS}")
+
 
 def _build_prompt(llm, target_len: int) -> str:
     """Build a prompt that tokenizes to exactly target_len tokens."""

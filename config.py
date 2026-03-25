@@ -9,10 +9,11 @@ ENFORCE_EAGER = True          # Disable CUDA graphs for accurate timing
 GPU_MEMORY_UTILIZATION = 0.85 # Leave headroom for profiler overhead
 
 # ── Profiling parameters ─────────────────────────────────────────────────────
-PREFILL_PROMPT_LENGTHS = [32, 64, 128, 256, 512, 1024, 2048, 4096]
+PREFILL_PROMPT_LENGTHS = [32, 64, 128, 256, 512, 1024, 1536]
 DECODE_LENGTHS = [32, 64, 128, 256, 512, 1024]
 DECODE_SHORT_PROMPT_LEN = 16  # Short prompt used during decode profiling
 WARMUP_ITERATIONS = 3
+MAX_MODEL_LEN = None  # Auto-detected at runtime from model config
 
 # ── GPU hardware specs (for Roofline model) ──────────────────────────────────
 GPU_SPECS = {
