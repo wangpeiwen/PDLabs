@@ -26,11 +26,31 @@ def _populate_model_arch(llm):
     try:
         from transformers import AutoConfig
         mc = AutoConfig.from_pretrained(config.MODEL_NAME)
-        h = getattr(mc, "hidden_size", None) or getattr(mc, "d_model", 768)
-        n_heads = getattr(mc, "num_attention_heads", None) or getattr(mc, "n_head", 12)
-        n_layers = getattr(mc, "num_hidden_layers", None) or getattr(mc, "n_layer", 12)
-        inter = getattr(mc, "intermediate_size", None) or getattr(mc, "ffn_dim", None) or h * 4
-        vocab = getattr(mc, "vocab_size", 50272)
+
+        # Debug: dump all potentially relevant attributes
+        print(f"  [debug] Model config type: {type(mc).__name__}")
+        for attr in ("hidden_size", "d_model", "num_attention_heads", "n_head",
+                      "num_hidden_layers", "n_layer", "intermediate_size",
+                      "ffn_dim", "n_inner", "vocab_size"):
+            val = getattr(mc, attr, "N/A")
+            print(f"    {attr} = {val}")
+
+        h = getattr(mc, "hidden_size", None) or getattr(mc, "d_model", None) or 768
+        n_heads = getattr(mc, "num_attention_heads", None) or getattr(mc, "n_head", None) or 12
+        n_layers = getattr(mc, "num_hidden_layers", None) or getattr(mc, "n_layer", None) or 12
+
+        # intermediate_size: different models use different names
+        inter = None
+        for attr in ("intermediate_size", "ffn_dim", "n_inner"):
+            val = getattr(mc, attr, None)
+            if val is not None and val > 0:
+                inter = val
+                break
+        if not inter:
+            inter = h * 4  # standard default
+
+        vocab = getattr(mc, "vocab_size", None) or 50272
+
         config.MODEL_ARCH.update({
             "n_layers": n_layers,
             "hidden_size": h,
@@ -42,6 +62,8 @@ def _populate_model_arch(llm):
         print(f"  Model arch: {n_layers}L, h={h}, heads={n_heads}, ffn={inter}, vocab={vocab}")
     except Exception as e:
         print(f"  [warn] Could not auto-detect model arch: {e}")
+        import traceback
+        traceback.print_exc()
 
 
 def _build_prompt(llm, target_len: int) -> str:

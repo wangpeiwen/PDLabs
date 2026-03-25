@@ -199,6 +199,11 @@ def compute_phase_summary(df, phase, token_count, seq_len):
     total_flops = compute_theoretical_flops(seq_len, phase)
     total_bytes = compute_theoretical_bytes(seq_len, phase)
 
+    print(f"    [debug] phase={phase}, seq_len={seq_len}, "
+          f"total_time_ms={total_time_ms:.2f}, "
+          f"theoretical_flops={total_flops:.2e}, theoretical_bytes={total_bytes:.2e}")
+    print(f"    [debug] MODEL_ARCH={config.MODEL_ARCH}")
+
     achieved_tflops = total_flops / total_time_s / 1e12 if total_time_s > 0 else 0
     bw_achieved = total_bytes / total_time_s if total_time_s > 0 else 0
 
