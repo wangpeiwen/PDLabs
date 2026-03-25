@@ -23,7 +23,7 @@ def create_figure(phase_summaries: list[dict], save_path=None):
     dc = decode[0] if decode else {}
 
     metrics = [
-        ("total_latency_ms", "Latency (ms)", "Total Phase Latency"),
+        ("elapsed_ms", "Latency (ms)", "Total Phase Latency"),
         ("tokens_per_second", "Tokens / s", "Throughput"),
         ("memory_bw_utilization", "Utilization (%)", "Memory Bandwidth Utilization"),
         ("compute_utilization", "Utilization (%)", "Compute Utilization"),
@@ -80,10 +80,10 @@ def _add_sweep_annotation(fig, prefill_list, decode_list):
     """Add a text box summarizing how metrics scale across configs."""
     lines = ["Config sweep summary:"]
     for s in prefill_list:
-        lines.append(f"  Prefill len={s['token_count']}: {s['total_latency_ms']:.1f}ms, "
+        lines.append(f"  Prefill len={s['token_count']}: {s['elapsed_ms']:.1f}ms, "
                      f"{s['compute_utilization']*100:.1f}% compute")
     for s in decode_list:
-        lines.append(f"  Decode  len={s['token_count']}: {s['total_latency_ms']:.1f}ms, "
+        lines.append(f"  Decode  len={s['token_count']}: {s['elapsed_ms']:.1f}ms, "
                      f"{s['memory_bw_utilization']*100:.1f}% BW")
     fig.text(0.02, -0.02, "\n".join(lines), fontsize=7, family="monospace",
              va="top", transform=fig.transFigure)
