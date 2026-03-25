@@ -45,6 +45,18 @@ GPU_SPECS = {
 
 ACTIVE_GPU = "A800_SXM"  # Change to match your hardware
 
+# ── Model architecture (for theoretical FLOPs/bytes calculation) ─────────
+# These are auto-detected at runtime from the model config.
+# Set to None here; profiler.py will populate them after loading the model.
+MODEL_ARCH = {
+    "n_layers": None,
+    "hidden_size": None,
+    "n_heads": None,
+    "head_dim": None,
+    "intermediate_size": None,  # FFN intermediate dim
+    "vocab_size": None,
+}
+
 # ── Output ───────────────────────────────────────────────────────────────────
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 

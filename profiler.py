@@ -10,12 +10,38 @@ import config
 
 def create_engine():
     """Initialize vLLM with eager mode so profiler sees individual kernels."""
-    return LLM(
+    llm = LLM(
         model=config.MODEL_NAME,
         dtype=config.DTYPE,
         enforce_eager=config.ENFORCE_EAGER,
         gpu_memory_utilization=config.GPU_MEMORY_UTILIZATION,
     )
+    # Populate MODEL_ARCH from the actual model config
+    _populate_model_arch(llm)
+    return llm
+
+
+def _populate_model_arch(llm):
+    """Read model config and fill config.MODEL_ARCH for theoretical FLOPs calc."""
+    try:
+        from transformers import AutoConfig
+        mc = AutoConfig.from_pretrained(config.MODEL_NAME)
+        h = getattr(mc, "hidden_size", None) or getattr(mc, "d_model", 768)
+        n_heads = getattr(mc, "num_attention_heads", None) or getattr(mc, "n_head", 12)
+        n_layers = getattr(mc, "num_hidden_layers", None) or getattr(mc, "n_layer", 12)
+        inter = getattr(mc, "intermediate_size", None) or getattr(mc, "ffn_dim", None) or h * 4
+        vocab = getattr(mc, "vocab_size", 50272)
+        config.MODEL_ARCH.update({
+            "n_layers": n_layers,
+            "hidden_size": h,
+            "n_heads": n_heads,
+            "head_dim": h // n_heads,
+            "intermediate_size": inter,
+            "vocab_size": vocab,
+        })
+        print(f"  Model arch: {n_layers}L, h={h}, heads={n_heads}, ffn={inter}, vocab={vocab}")
+    except Exception as e:
+        print(f"  [warn] Could not auto-detect model arch: {e}")
 
 
 def _build_prompt(llm, target_len: int) -> str:

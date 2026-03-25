@@ -64,21 +64,25 @@ def main():
     prefill_dfs, decode_dfs = [], []
 
     for r in results["prefill"]:
+        plen = r["prompt_length"]
         df = analyzer.extract_kernel_events(r["profiler"])
-        df = analyzer.compute_roofline_metrics(df)
+        df = analyzer.compute_roofline_metrics(df, seq_len=plen, phase="prefill")
         df["phase"] = "prefill"
-        df["config_label"] = f"prompt_len={r['prompt_length']}"
+        df["config_label"] = f"prompt_len={plen}"
         prefill_dfs.append(df)
-        summary = analyzer.compute_phase_summary(df, "prefill", r["prompt_length"])
+        summary = analyzer.compute_phase_summary(df, "prefill", plen, seq_len=plen)
         all_summaries.append(summary)
 
     for r in results["decode"]:
+        dlen = r["decode_length"]
+        # For decode, seq_len is the KV cache length (short prompt + generated tokens)
+        kv_len = config.DECODE_SHORT_PROMPT_LEN + dlen
         df = analyzer.extract_kernel_events(r["profiler"])
-        df = analyzer.compute_roofline_metrics(df)
+        df = analyzer.compute_roofline_metrics(df, seq_len=kv_len, phase="decode")
         df["phase"] = "decode"
-        df["config_label"] = f"decode_len={r['decode_length']}"
+        df["config_label"] = f"decode_len={dlen}"
         decode_dfs.append(df)
-        summary = analyzer.compute_phase_summary(df, "decode", r["decode_length"])
+        summary = analyzer.compute_phase_summary(df, "decode", dlen, seq_len=kv_len)
         all_summaries.append(summary)
 
     # Merge for visualization (use largest prefill, longest decode as representative)
